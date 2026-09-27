@@ -1,10 +1,13 @@
+--!nocheck
+-- ============================================================
+--  IMPERIAL UI  ·  Library.lua  (rediseño 2026)
+--  Themes + Chamfer (esquinas mochadas) + Registry en vivo
+-- ============================================================
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
 
--- 🔴 CAMBIA ESTA URL POR TU RUTA DE GITHUB RAW
 local GITHUB_RAW_BASE = "https://raw.githubusercontent.com/CodeVoult/ImperialUI-/main/elements/"
 
 local function LoadElement(name)
@@ -12,47 +15,107 @@ local function LoadElement(name)
         return loadstring(game:HttpGet(GITHUB_RAW_BASE .. name .. ".lua"))()
     end)
     if not success or not result then
-        warn("[Library Error] Error al cargar el módulo " .. name .. ": " .. tostring(result))
+        warn("[Library Error] No se pudo cargar el modulo " .. name .. ": " .. tostring(result))
     end
     return result
 end
 
--- Cargar módulos
-local Spring           = LoadElement("Spring")
-local SpringAnimations = LoadElement("SpringAnimations")
-local TabsModule       = LoadElement("Tabs")
-local ToggleModule     = LoadElement("Toggle")
-local ButtonModule     = LoadElement("Button")
-local SliderModule     = LoadElement("Slider")
-local DropdownModule   = LoadElement("Dropdown")
+local Spring            = LoadElement("Spring")
+local SpringAnimations  = LoadElement("SpringAnimations")
+local TabsModule        = LoadElement("Tabs")
+local ToggleModule      = LoadElement("Toggle")
+local ButtonModule      = LoadElement("Button")
+local SliderModule      = LoadElement("Slider")
+local DropdownModule    = LoadElement("Dropdown")
 local ColorPickerModule = LoadElement("ColorPicker")
 
 local Library = {}
 Library.__index = Library
 
--- ================================================================= --
--- CONFIGURACIÓN DE COLORES Y UTILIDADES
--- ================================================================= --
 if game:GetService("CoreGui"):FindFirstChild("DDOS_VENOM") then
     game:GetService("CoreGui").DDOS_VENOM:Destroy()
 end
 
-local T = {
-    bg = Color3.fromRGB(14, 38, 70),
-    panel = Color3.fromRGB(4, 20, 38),
-    panel2 = Color3.fromRGB(6, 26, 48),
-    border = Color3.fromRGB(0, 166, 255),
-    acc = Color3.fromRGB(0, 166, 255),
-    text = Color3.fromRGB(255, 255, 255),
-    red = Color3.fromRGB(255, 60, 60),
-    green = Color3.fromRGB(50, 255, 100),
-    sep = Color3.fromRGB(10, 35, 60),
-    switchOff = Color3.fromRGB(10, 30, 50),
-    bgTrans = 0.1,
-    tabSize = 200,
+-- ================================================================== --
+--  THEMES  (agrega los tuyos aqui, todo lo demas se adapta solo)
+-- ================================================================== --
+local ThemeList = {
+    Venom = { -- azul original, pulido
+        bg = Color3.fromRGB(10, 18, 32),
+        panel = Color3.fromRGB(6, 13, 26),
+        panel2 = Color3.fromRGB(13, 24, 42),
+        card = Color3.fromRGB(8, 15, 28),
+        border = Color3.fromRGB(0, 166, 255),
+        acc = Color3.fromRGB(0, 150, 255),
+        acc2 = Color3.fromRGB(0, 80, 200),
+        text = Color3.fromRGB(240, 245, 255),
+        sub = Color3.fromRGB(160, 180, 205),
+        sep = Color3.fromRGB(10, 20, 36),
+        switchOff = Color3.fromRGB(12, 20, 34),
+        red = Color3.fromRGB(255, 60, 60),
+        green = Color3.fromRGB(50, 255, 100),
+        grad = { Color3.fromRGB(0, 200, 255), Color3.fromRGB(0, 110, 240), Color3.fromRGB(5, 30, 80) },
+    },
+    Crimson = { -- como tus fotos rojas
+        bg = Color3.fromRGB(16, 10, 12),
+        panel = Color3.fromRGB(12, 7, 9),
+        panel2 = Color3.fromRGB(24, 14, 17),
+        card = Color3.fromRGB(14, 8, 10),
+        border = Color3.fromRGB(255, 40, 40),
+        acc = Color3.fromRGB(235, 20, 35),
+        acc2 = Color3.fromRGB(140, 5, 15),
+        text = Color3.fromRGB(255, 244, 244),
+        sub = Color3.fromRGB(205, 165, 165),
+        sep = Color3.fromRGB(30, 14, 16),
+        switchOff = Color3.fromRGB(26, 14, 16),
+        red = Color3.fromRGB(255, 60, 60),
+        green = Color3.fromRGB(50, 255, 100),
+        grad = { Color3.fromRGB(255, 80, 80), Color3.fromRGB(235, 20, 35), Color3.fromRGB(70, 0, 10) },
+    },
+    Royal = { -- morado estilo CHARM / Cat
+        bg = Color3.fromRGB(15, 11, 26),
+        panel = Color3.fromRGB(10, 7, 20),
+        panel2 = Color3.fromRGB(21, 15, 38),
+        card = Color3.fromRGB(12, 8, 22),
+        border = Color3.fromRGB(150, 80, 255),
+        acc = Color3.fromRGB(124, 58, 237),
+        acc2 = Color3.fromRGB(70, 20, 160),
+        text = Color3.fromRGB(245, 240, 255),
+        sub = Color3.fromRGB(180, 165, 210),
+        sep = Color3.fromRGB(20, 14, 34),
+        switchOff = Color3.fromRGB(18, 12, 30),
+        red = Color3.fromRGB(255, 60, 60),
+        green = Color3.fromRGB(50, 255, 100),
+        grad = { Color3.fromRGB(190, 120, 255), Color3.fromRGB(124, 58, 237), Color3.fromRGB(35, 8, 80) },
+    },
+    Emerald = {
+        bg = Color3.fromRGB(9, 20, 16),
+        panel = Color3.fromRGB(6, 14, 11),
+        panel2 = Color3.fromRGB(12, 28, 22),
+        card = Color3.fromRGB(8, 17, 13),
+        border = Color3.fromRGB(0, 230, 160),
+        acc = Color3.fromRGB(0, 200, 140),
+        acc2 = Color3.fromRGB(0, 110, 80),
+        text = Color3.fromRGB(240, 255, 250),
+        sub = Color3.fromRGB(160, 200, 185),
+        sep = Color3.fromRGB(10, 24, 19),
+        switchOff = Color3.fromRGB(11, 24, 19),
+        red = Color3.fromRGB(255, 60, 60),
+        green = Color3.fromRGB(50, 255, 100),
+        grad = { Color3.fromRGB(60, 255, 190), Color3.fromRGB(0, 200, 140), Color3.fromRGB(0, 45, 35) },
+    },
 }
+Library.ThemeList = ThemeList
+
+local T = {}
+for k, v in pairs(ThemeList.Venom) do T[k] = v end
+T.bgTrans = 0.06
+T.tabSize = 200
 Library.T = T
 
+-- ================================================================== --
+--  HELPERS
+-- ================================================================== --
 local function New(cls, props)
     local o = Instance.new(cls)
     for k, v in pairs(props or {}) do o[k] = v end
@@ -72,125 +135,211 @@ Library.List = List
 local function Pad(obj, t, b, l, r) New("UIPadding", { PaddingTop = UDim.new(0, t or 0), PaddingBottom = UDim.new(0, b or 0), PaddingLeft = UDim.new(0, l or 0), PaddingRight = UDim.new(0, r or 0), Parent = obj }) end
 Library.Pad = Pad
 
-local function Tween(obj, t, props, style, dir) 
-    local anim = TweenService:Create(obj, TweenInfo.new(t, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out), props) 
-    anim:Play() 
-    return anim 
+local function Tween(obj, t, props, style, dir)
+    local anim = TweenService:Create(obj, TweenInfo.new(t, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out), props)
+    anim:Play()
+    return anim
 end
 Library.Tween = Tween
 
 local function Shadow(obj, transparency, expand)
     return New("ImageLabel", {
-        Name = "Shadow",
-        AnchorPoint = Vector2.new(0.5, 0.5),
+        Name = "Shadow", AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.new(0.5, 0, 0.5, 3),
         Size = UDim2.new(1, expand or 24, 1, expand or 24),
-        BackgroundTransparency = 1,
-        Image = "rbxassetid://6014261993",
+        BackgroundTransparency = 1, Image = "rbxassetid://6014261993",
         ImageColor3 = Color3.fromRGB(0, 0, 0),
         ImageTransparency = transparency or 0.55,
         ScaleType = Enum.ScaleType.Slice,
         SliceCenter = Rect.new(49, 49, 450, 450),
-        ZIndex = 0,
-        Parent = obj
+        ZIndex = 0, Parent = obj,
     })
 end
 Library.Shadow = Shadow
 
--- ================================================================= --
--- CREACIÓN DE LA VENTANA (con título limpio)
--- ================================================================= --
-function Library:CreateWindow(hubTitle)
+-- Gradiente de acento (bordes / strokes animados)
+local function AccGradient(parent, rot)
+    return New("UIGradient", {
+        Rotation = rot or 225,
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, T.grad[1]),
+            ColorSequenceKeypoint.new(0.5, T.grad[2]),
+            ColorSequenceKeypoint.new(1, T.grad[3]),
+        }),
+        Parent = parent,
+    })
+end
+Library.AccGradient = AccGradient
+
+-- Rotacion suave de un gradiente; se detiene solo si el parent muere
+local function SpinGradient(grad, speed)
+    task.spawn(function()
+        local acc = 0
+        while grad and grad.Parent do
+            acc += (speed or 1.2)
+            if acc >= 1 then
+                grad.Rotation = (grad.Rotation + acc) % 360
+                acc = 0
+            end
+            task.wait(0.05) -- ~20fps para la rotacion: invisible a ojo, barato
+        end
+    end)
+end
+Library.SpinGradient = SpinGradient
+
+-- CHAMFER: esquinas "mochadas" como tus fotos.
+-- Pinta 4 triangulos (rotados 45°) del color de la tarjeta detras.
+-- IMPORTANTE: el objeto debe estar sobre un fondo opaco del color `coverColor`.
+local function Chamfer(obj, cut, coverColor, z)
+    cut = cut or 10
+    z = z or ((obj.ZIndex or 1) + 1)
+    local covers = {}
+    local corners = { {0,0,-1,-1}, {1,0,1,-1}, {0,1,-1,1}, {1,1,1,1} }
+    for _, c in ipairs(corners) do
+        local x, y, sx, sy = c[1], c[2], c[3], c[4]
+        local tri = New("Frame", {
+            AnchorPoint = Vector2.new(x, y),
+            Position = UDim2.new(x, sx * cut * 0.55, y, sy * cut * 0.55),
+            Size = UDim2.new(0, cut * 1.7, 0, cut * 1.7),
+            Rotation = 45,
+            BackgroundColor3 = coverColor,
+            BorderSizePixel = 0,
+            ZIndex = z,
+            Parent = obj,
+        })
+        table.insert(covers, tri)
+    end
+    obj.ClipsDescendants = false
+    return covers
+end
+Library.Chamfer = Chamfer
+
+-- Registry para cambio de theme en vivo
+function Library:Reg(obj, prop, role)
+    if not self._themed then self._themed = {} end
+    table.insert(self._themed, { obj = obj, prop = prop, role = role })
+    return obj
+end
+
+function Library:SetTheme(name)
+    local th = ThemeList[name]
+    if not th then warn("[Library] Theme inexistente: " .. tostring(name)) return end
+    self.ThemeName = name
+    for k, v in pairs(th) do self.T[k] = v end
+    for _, e in ipairs(self._themed or {}) do
+        if e.obj and e.obj.Parent then
+            if e.role == "@grad" then
+                e.obj.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, th.grad[1]),
+                    ColorSequenceKeypoint.new(0.5, th.grad[2]),
+                    ColorSequenceKeypoint.new(1, th.grad[3]),
+                })
+            else
+                local target = th[e.role]
+                if target then
+                    pcall(function() Tween(e.obj, 0.35, { [e.prop] = target }) end)
+                end
+            end
+        end
+    end
+end
+
+-- ================================================================== --
+--  VENTANA
+-- ================================================================== --
+function Library:CreateWindow(hubTitle, themeName)
     local self = setmetatable({}, Library)
     self.LogoLocked = false
     self.Pages = {}
+    self.Tabs = {}
+    self.ActivePage = nil
+    self._themed = {}
     self.T = T
+    self.ThemeName = "Venom"
+    if themeName and ThemeList[themeName] then
+        for k, v in pairs(ThemeList[themeName]) do T[k] = v end
+        self.ThemeName = themeName
+    end
 
-    -- Limpiar el título de cualquier etiqueta HTML para que sea texto plano
-    local cleanTitle = hubTitle and string.gsub(hubTitle, "<[^>]*>", "") or "Mi Script"
+    local cleanTitle = hubTitle and string.gsub(hubTitle, "<[^>]*>", "") or "Imperial UI"
 
-    -- GUI principal
     self.GUI = New("ScreenGui", {
         Name = "DDOS_VENOM",
         ResetOnSpawn = false,
         DisplayOrder = 999999999,
-        Parent = (gethui and gethui() or game:GetService("CoreGui"))
+        IgnoreGuiInset = true,
+        Parent = (gethui and gethui() or game:GetService("CoreGui")),
     })
 
-    -- Sonido de clic
+    -- Sonido de clic (una sola conexion por boton)
     local clickSound = Instance.new("Sound")
     clickSound.SoundId = "rbxassetid://4590657391"
-    clickSound.Volume = 0.5
+    clickSound.Volume = 0.4
     clickSound.Parent = self.GUI
-
+    local hooked = setmetatable({}, { __mode = "k" })
     self.GUI.DescendantAdded:Connect(function(obj)
-        if obj:IsA("TextButton") or obj:IsA("ImageButton") then
-            obj.MouseButton1Click:Connect(function() clickSound:Play() end)
+        if (obj:IsA("TextButton") or obj:IsA("ImageButton")) and not hooked[obj] then
+            hooked[obj] = true
+            obj.MouseButton1Click:Connect(function()
+                if not clickSound.Playing then clickSound:Play() end
+            end)
         end
     end)
 
-    -- Capa de notificaciones
     self.NotifLayer = New("Frame", {
         Name = "Notifs",
         AnchorPoint = Vector2.new(1, 1),
-        Position = UDim2.new(1, -20, 1, -20),
+        Position = UDim2.new(1, -16, 1, -16),
         Size = UDim2.new(0, 260, 0, 10),
         AutomaticSize = Enum.AutomaticSize.Y,
         BackgroundTransparency = 1,
         ZIndex = 999999995,
-        Parent = self.GUI
+        Parent = self.GUI,
     })
     List(self.NotifLayer, Enum.FillDirection.Vertical, 8)
 
-    -- Ícono flotante
+    -- Icono flotante (chamfered, estilo gaming)
     self.FloatIcon = New("TextButton", {
         Name = "FloatIcon",
         AnchorPoint = Vector2.new(0.5, 0.5),
-        Size = UDim2.new(0, 140, 0, 42),
-        Position = UDim2.new(0.5, 0, 0, 50),
-        BackgroundColor3 = Color3.fromRGB(10, 14, 23),
-        BackgroundTransparency = 0.35,
-        Text = "Open Menu",
-        TextColor3 = Color3.fromRGB(255, 255, 255),
-        Font = Enum.Font.GothamBold,
-        TextSize = 14,
+        Size = UDim2.new(0, 150, 0, 44),
+        Position = UDim2.new(0.5, 0, 0, 60),
+        BackgroundColor3 = T.acc,
+        BorderSizePixel = 0,
+        Text = "",
         AutoButtonColor = false,
         ZIndex = 999999990,
-        Parent = self.GUI
+        Parent = self.GUI,
     })
-    Cor(self.FloatIcon, 21)
+    local floatCovers = Chamfer(self.FloatIcon, 12, Color3.fromRGB(0, 0, 0), 999999991)
+    for _, c in ipairs(floatCovers) do c.BackgroundTransparency = 1 end -- el icono flota: sin covers
+    AccGradient(self.FloatIcon, 25)
+    self:Reg(self.FloatIcon, "BackgroundColor3", "acc")
 
-    local lightStroke = New("UIStroke", {
-        Name = "LightStroke",
-        Thickness = 2.5,
-        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-        Color = Color3.fromRGB(255, 255, 255),
-        Parent = self.FloatIcon
-    })
-    New("UIGradient", {
-        Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
-            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 110, 240)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 30, 80))
-        }),
-        Rotation = 225,
-        Parent = lightStroke
+    New("TextLabel", {
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        Text = "OPEN MENU",
+        TextColor3 = T.text,
+        Font = Enum.Font.GothamBlack,
+        TextSize = 14,
+        ZIndex = 999999992,
+        Parent = self.FloatIcon,
     })
 
-    -- Etiqueta para animación de cierre (se usa desde el módulo de animación)
     self.closeTextLabel = New("TextLabel", {
         Name = "CloseTextAnim",
         AnchorPoint = Vector2.new(0.5, 0.5),
-        Size = UDim2.new(0, 140, 0, 42),
+        Size = UDim2.new(0, 150, 0, 44),
         BackgroundTransparency = 1,
-        Text = "Open Menu",
-        TextColor3 = Color3.fromRGB(255, 255, 255),
-        Font = Enum.Font.GothamBold,
+        Text = "OPEN MENU",
+        TextColor3 = T.text,
+        Font = Enum.Font.GothamBlack,
         TextSize = 14,
         TextTransparency = 1,
         Visible = false,
         ZIndex = 999999998,
-        Parent = self.GUI
+        Parent = self.GUI,
     })
 
     -- Ventana principal
@@ -198,69 +347,47 @@ function Library:CreateWindow(hubTitle)
         Name = "Window",
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.new(0.5, 0, 0.5, 0),
-        Size = UDim2.new(0, 140, 0, 42),
+        Size = UDim2.new(0, 150, 0, 44),
         BackgroundColor3 = T.bg,
         BackgroundTransparency = T.bgTrans,
         Visible = false,
         BorderSizePixel = 0,
         ClipsDescendants = true,
-        Parent = self.GUI
+        Parent = self.GUI,
     })
-    self.WinCorner = Cor(self.WinMain, 21)
+    self.WinCorner = Cor(self.WinMain, 22)
     self.WinScale = New("UIScale", { Scale = 1, Parent = self.WinMain })
 
     local winInner = New("Frame", {
         Size = UDim2.new(1, 0, 1, 0),
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundColor3 = T.panel,
         BackgroundTransparency = T.bgTrans,
         ClipsDescendants = true,
-        Parent = self.WinMain
+        Parent = self.WinMain,
     })
     Cor(winInner, 32)
 
     local bgGradient = New("UIGradient", {
         Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(46, 132, 230)),
-            ColorSequenceKeypoint.new(0.45, Color3.fromRGB(16, 66, 132)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(3, 14, 38))
+            ColorSequenceKeypoint.new(0, T.panel2),
+            ColorSequenceKeypoint.new(1, T.panel),
         }),
         Rotation = 45,
-        Parent = winInner
+        Parent = winInner,
     })
-    task.spawn(function()
-        local t = 0
-        while bgGradient and bgGradient.Parent do
-            t = t + 0.02
-            bgGradient.Rotation = 45 + math.sin(t) * 4
-            bgGradient.Offset = Vector2.new(math.sin(t * 0.6) * 0.04, math.cos(t * 0.6) * 0.04)
-            task.wait(0.03)
-        end
-    end)
+    self:Reg(winInner, "BackgroundColor3", "panel")
 
     self.borderStroke = New("UIStroke", {
         Name = "BorderStroke",
-        Thickness = 3.2,
+        Thickness = 2.6,
         Color = Color3.fromRGB(255, 255, 255),
         ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-        Parent = self.WinMain
+        Parent = self.WinMain,
     })
-    local borderGradient = New("UIGradient", {
-        Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
-            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 110, 240)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 30, 80))
-        }),
-        Rotation = 225,
-        Parent = self.borderStroke
-    })
-    task.spawn(function()
-        while borderGradient and borderGradient.Parent do
-            borderGradient.Rotation = (borderGradient.Rotation + 1.2) % 360
-            task.wait(0.03)
-        end
-    end)
+    local borderGradient = AccGradient(self.borderStroke, 225)
+    self:Reg(borderGradient, "Color", "@grad")
+    SpinGradient(borderGradient, 1.2)
 
-    -- Contenido (se muestra cuando la ventana está abierta)
     self.ContentGroup = New("CanvasGroup", {
         Name = "ContentGroup",
         Size = UDim2.new(1, 0, 1, 0),
@@ -270,93 +397,78 @@ function Library:CreateWindow(hubTitle)
         ClipsDescendants = true,
         Visible = false,
         ZIndex = 4,
-        Parent = winInner
+        Parent = winInner,
     })
 
-    -- Barra de título
     self.titleBar = New("Frame", {
-        Size = UDim2.new(1, 0, 0, 50),
+        Size = UDim2.new(1, 0, 0, 52),
         BackgroundTransparency = 1,
         ZIndex = 5,
-        Parent = self.ContentGroup
+        Parent = self.ContentGroup,
     })
 
-    -- Título en texto plano (sin formato)
-    New("TextLabel", {
+    local titleLabel = New("TextLabel", {
         Size = UDim2.new(1, -24, 1, 0),
-        Position = UDim2.new(0, 12, 0, 0),
+        Position = UDim2.new(0, 16, 0, 0),
         BackgroundTransparency = 1,
-        Text = cleanTitle,   -- <-- título limpio
-        TextColor3 = Color3.fromRGB(255, 255, 255),
-        Font = Enum.Font.GothamBold,
+        Text = cleanTitle,
+        TextColor3 = T.text,
+        Font = Enum.Font.GothamBlack,
         TextSize = 16,
         TextXAlignment = Enum.TextXAlignment.Left,
         ZIndex = 7,
-        Parent = self.titleBar
+        Parent = self.titleBar,
     })
+    self:Reg(titleLabel, "TextColor3", "text")
 
     -- Sidebar
     self.Sidebar = New("ScrollingFrame", {
-    Position = UDim2.new(0, 6, 0, 50),
-    Size = UDim2.new(0, T.tabSize - 30, 1, -60),
-    BackgroundTransparency = 1,
-    ClipsDescendants = true,
-    ScrollBarThickness = 4,          -- <-- ahora se ve el scroll
-    ScrollBarImageColor3 = Color3.fromRGB(0, 166, 255),
-    ScrollingDirection = Enum.ScrollingDirection.Y,
-    CanvasSize = UDim2.new(0, 0, 0, 0),
-    AutomaticCanvasSize = Enum.AutomaticSize.Y,
-    ZIndex = 3,
-    Parent = self.ContentGroup
-})
+        Position = UDim2.new(0, 8, 0, 52),
+        Size = UDim2.new(0, T.tabSize - 30, 1, -62),
+        BackgroundTransparency = 1,
+        ClipsDescendants = true,
+        ScrollBarThickness = 3,
+        ScrollBarImageColor3 = T.acc,
+        ScrollingDirection = Enum.ScrollingDirection.Y,
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        AutomaticCanvasSize = Enum.AutomaticSize.Y,
+        ZIndex = 3,
+        Parent = self.ContentGroup,
+    })
+    self:Reg(self.Sidebar, "ScrollBarImageColor3", "acc")
     List(self.Sidebar, Enum.FillDirection.Vertical, 6)
     Pad(self.Sidebar, 4, 12, 2, 6)
 
-    -- Área de contenido
     self.ContentArea = New("Frame", {
-        Position = UDim2.new(0, T.tabSize - 20, 0, 50),
-        Size = UDim2.new(1, -T.tabSize + 14, 1, -56),
+        Position = UDim2.new(0, T.tabSize - 20, 0, 52),
+        Size = UDim2.new(1, -T.tabSize + 14, 1, -58),
         BackgroundColor3 = T.panel,
-        BackgroundTransparency = T.bgTrans,
         ClipsDescendants = true,
         ZIndex = 3,
-        Parent = self.ContentGroup
+        Parent = self.ContentGroup,
     })
-    Cor(self.ContentArea, 16)
+    Cor(self.ContentArea, 14)
+    self:Reg(self.ContentArea, "BackgroundColor3", "panel")
 
-    New("UIGradient", {
-        Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(12, 44, 84)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(3, 14, 34))
-        }),
-        Rotation = 45,
-        Parent = self.ContentArea
-    })
-
-    -- Conectar animaciones (separa la lógica de animación)
+    -- Animaciones (tu spring, intacto)
     self.Animations = SpringAnimations.Setup(self, {
-        targetWidth = 620,
-        targetHeight = 360,
+        targetWidth = 640,
+        targetHeight = 400,
     }, Spring)
 
-    -- Métodos para controlar la ventana desde fuera
-    function self:Open()
-        self.Animations.Open()
-    end
+    function self:Open() self.Animations.Open() end
+    function self:Close() self.Animations.Close() end
+    function self:Toggle() self.Animations.Toggle() end
+    function self:IsOpen() return self.Animations.IsOpen() end
 
-    function self:Close()
-        self.Animations.Close()
-    end
+    -- Keybind: RightControl
+    UserInputService.InputBegan:Connect(function(i, gpe)
+        if not gpe and i.KeyCode == Enum.KeyCode.RightControl then
+            self:Toggle()
+        end
+    end)
 
-    function self:Toggle()
-        self.Animations.Toggle()
-    end
-
-    function self:IsOpen()
-        return self.Animations.IsOpen()
-    end
-
-    -- Funciones de arrastre para el ícono flotante
+    -- Drag del icono
     local function makeDraggable(obj, target)
         local dragStart, startPos, dragging
         obj.InputBegan:Connect(function(i)
@@ -378,49 +490,38 @@ function Library:CreateWindow(hubTitle)
                 dragging = false
                 local parentSize = self.GUI.AbsoluteSize
                 if parentSize.X > 0 and parentSize.Y > 0 then
-                    local absPos = target.AbsolutePosition
-                    local absSize = target.AbsoluteSize
-                    target.Position = UDim2.new((absPos.X + (absSize.X / 2)) / parentSize.X, 0, (absPos.Y + (absSize.Y / 2)) / parentSize.Y, 0)
+                    local absPos, absSize = target.AbsolutePosition, target.AbsoluteSize
+                    target.Position = UDim2.new((absPos.X + absSize.X / 2) / parentSize.X, 0, (absPos.Y + absSize.Y / 2) / parentSize.Y, 0)
                 end
             end
         end)
     end
-
     makeDraggable(self.FloatIcon, self.FloatIcon)
 
-    -- Métodos de utilidad
-    function self:SetScale(scaleValue)
-        if self.WinScale then self.WinScale.Scale = scaleValue end
-    end
-
-    function self:SetLogoVisible(visible)
-        if self.FloatIcon then self.FloatIcon.Visible = visible end
-    end
-
-    function self:SetLogoLocked(locked)
-        self.LogoLocked = locked
-    end
+    function self:SetScale(v) if self.WinScale then self.WinScale.Scale = v end end
+    function self:SetLogoVisible(v) if self.FloatIcon then self.FloatIcon.Visible = v end end
+    function self:SetLogoLocked(l) self.LogoLocked = l end
 
     return self
 end
 
--- ================================================================= --
--- NOTIFICACIONES (sin cambios)
--- ================================================================= --
+-- ================================================================== --
+--  NOTIFICACIONES
+-- ================================================================== --
 function Library:Notify(feature, state)
     local accent = state and T.green or T.red
     local titleTxt = state and "SISTEMA ACTIVO" or "SISTEMA DESACTIVADO"
 
     local card = New("Frame", {
         Size = UDim2.new(1, 0, 0, 50),
-        BackgroundColor3 = T.panel,
-        BackgroundTransparency = 1,
+        BackgroundColor3 = T.card,
+        BorderSizePixel = 0,
         ZIndex = 999999996,
-        Parent = self.NotifLayer
+        Parent = self.NotifLayer,
     })
     Cor(card, 12)
 
-    local st = Stk(card, T.border, 1.2)
+    local st = Stk(card, accent, 1.2)
     st.Transparency = 1
     local sh = Shadow(card, 1, 24)
     local cs = New("UIScale", { Scale = 0.8, Parent = card })
@@ -431,7 +532,7 @@ function Library:Notify(feature, state)
         BackgroundColor3 = accent,
         BackgroundTransparency = 1,
         ZIndex = 999999997,
-        Parent = card
+        Parent = card,
     })
     Cor(bar, 2)
 
@@ -439,28 +540,20 @@ function Library:Notify(feature, state)
         Position = UDim2.new(0, 20, 0, 8),
         Size = UDim2.new(1, -30, 0, 16),
         BackgroundTransparency = 1,
-        Text = titleTxt,
-        TextColor3 = accent,
-        Font = Enum.Font.GothamBold,
-        TextSize = 11,
+        Text = titleTxt, TextColor3 = accent,
+        Font = Enum.Font.GothamBold, TextSize = 11,
         TextXAlignment = Enum.TextXAlignment.Left,
-        TextTransparency = 1,
-        ZIndex = 999999997,
-        Parent = card
+        TextTransparency = 1, ZIndex = 999999997, Parent = card,
     })
 
     local sub = New("TextLabel", {
         Position = UDim2.new(0, 20, 0, 24),
         Size = UDim2.new(1, -30, 0, 16),
         BackgroundTransparency = 1,
-        Text = feature,
-        TextColor3 = T.text,
-        Font = Enum.Font.GothamMedium,
-        TextSize = 10,
+        Text = tostring(feature), TextColor3 = T.text,
+        Font = Enum.Font.GothamMedium, TextSize = 10,
         TextXAlignment = Enum.TextXAlignment.Left,
-        TextTransparency = 1,
-        ZIndex = 999999997,
-        Parent = card
+        TextTransparency = 1, ZIndex = 999999997, Parent = card,
     })
 
     local track = New("Frame", {
@@ -469,21 +562,17 @@ function Library:Notify(feature, state)
         Size = UDim2.new(1, 0, 0, 2),
         BackgroundColor3 = T.sep,
         BackgroundTransparency = 1,
-        ZIndex = 999999997,
-        Parent = card
+        ZIndex = 999999997, Parent = card,
     })
-
     local fill = New("Frame", {
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundColor3 = accent,
         BackgroundTransparency = 1,
-        ZIndex = 999999998,
-        Parent = track
+        ZIndex = 999999998, Parent = track,
     })
     Cor(fill, 1)
 
     Tween(cs, 0.4, { Scale = 1 }, Enum.EasingStyle.Back)
-    Tween(card, 0.35, { BackgroundTransparency = T.bgTrans })
     Tween(st, 0.35, { Transparency = 0 })
     Tween(sh, 0.35, { ImageTransparency = 0.6 })
     Tween(bar, 0.35, { BackgroundTransparency = 0 })
@@ -496,7 +585,6 @@ function Library:Notify(feature, state)
     task.delay(2.1, function()
         if not card or not card.Parent then return end
         Tween(cs, 0.3, { Scale = 0.8 }, Enum.EasingStyle.Quad)
-        Tween(card, 0.3, { BackgroundTransparency = 1 })
         Tween(st, 0.3, { Transparency = 1 })
         Tween(sh, 0.3, { ImageTransparency = 1 })
         Tween(bar, 0.3, { BackgroundTransparency = 1 })
@@ -507,13 +595,11 @@ function Library:Notify(feature, state)
     end)
 end
 
--- ================================================================= --
--- CREACIÓN DE PESTAÑAS (CORREGIDO: acepta iconId)
--- ================================================================= --
+-- ================================================================== --
+--  TABS / SECCIONES
+-- ================================================================== --
 function Library:CreateTab(name, iconId)
-    -- Pasar el iconId al módulo TabsModule
     local page = TabsModule.Create(self, name, iconId)
-
     local TabMethods = { Library = self, Page = page }
 
     function TabMethods:CreateSection(title)
@@ -522,53 +608,44 @@ function Library:CreateTab(name, iconId)
             AutomaticSize = Enum.AutomaticSize.Y,
             BackgroundTransparency = 1,
             ZIndex = 5,
-            Parent = page
+            Parent = page,
         })
         List(container, Enum.FillDirection.Vertical, 8)
 
-        New("TextLabel", {
-            Size = UDim2.new(1, -4, 0, 26),
+        local head = New("TextLabel", {
+            Size = UDim2.new(1, -4, 0, 24),
             Position = UDim2.new(0, 4, 0, 0),
             BackgroundTransparency = 1,
-            Text = title,
-            TextColor3 = Color3.fromRGB(255, 255, 255),
-            Font = Enum.Font.GothamMedium,
-            TextSize = 18,
+            Text = string.upper(title),
+            TextColor3 = T.sub,
+            Font = Enum.Font.GothamBold,
+            TextSize = 12,
             TextXAlignment = Enum.TextXAlignment.Left,
             ZIndex = 6,
-            Parent = container
+            Parent = container,
         })
+        self:Reg(head, "TextColor3", "sub")
 
         local card = New("Frame", {
             Size = UDim2.new(1, 0, 0, 0),
             AutomaticSize = Enum.AutomaticSize.Y,
-            BackgroundTransparency = 1,
+            BackgroundColor3 = T.card,
+            BorderSizePixel = 0,
             ZIndex = 5,
-            Parent = container
+            Parent = container,
         })
+        Cor(card, 14)
+        self:Reg(card, "BackgroundColor3", "card")
         List(card, Enum.FillDirection.Vertical, 8)
+        Pad(card, 10, 10, 10, 10)
 
-        local ElementMethods = { Card = card, Library = self.Library }
+        local ElementMethods = { Card = card, Library = self }
 
-        function ElementMethods:AddToggle(lbl, def, cb)
-            ToggleModule.Add(self.Library, card, lbl, def, cb)
-        end
-
-        function ElementMethods:AddButton(lbl, cb)
-            ButtonModule.Add(self.Library, card, lbl, cb)
-        end
-
-        function ElementMethods:AddSlider(lbl, mn, mx, def, cb)
-            SliderModule.Add(self.Library, card, lbl, mn, mx, def, cb)
-        end
-
-        function ElementMethods:AddDropdown(lbl, options, defaultIdx, cb)
-            DropdownModule.Add(self.Library, card, lbl, options, defaultIdx, cb)
-        end
-
-        function ElementMethods:AddColorPicker(lbl, defaultColor, cb)
-            ColorPickerModule.Add(self.Library, card, lbl, defaultColor, cb)
-        end
+        function ElementMethods:AddToggle(lbl, def, cb) ToggleModule.Add(self.Library, card, lbl, def, cb) end
+        function ElementMethods:AddButton(lbl, cb) ButtonModule.Add(self.Library, card, lbl, cb) end
+        function ElementMethods:AddSlider(lbl, mn, mx, def, cb) SliderModule.Add(self.Library, card, lbl, mn, mx, def, cb) end
+        function ElementMethods:AddDropdown(lbl, options, defaultIdx, cb) DropdownModule.Add(self.Library, card, lbl, options, defaultIdx, cb) end
+        function ElementMethods:AddColorPicker(lbl, defaultColor, cb) ColorPickerModule.Add(self.Library, card, lbl, defaultColor, cb) end
 
         return ElementMethods
     end
